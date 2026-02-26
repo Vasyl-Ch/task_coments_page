@@ -46,46 +46,6 @@ services:
       - source: 0.0.0.0/0
         description: "allow all"
 
-  - type: worker
-    name: comments-celery
-    runtime: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "celery -A config worker -l info"
-    plan: free
-    envVars:
-      - key: DEBUG
-        value: "False"
-      - key: SECRET_KEY
-        fromService:
-          name: comments-app
-          type: web
-          envVarKey: SECRET_KEY
-      - key: POSTGRES_HOST
-        fromDatabase:
-          name: comments-db
-          property: host
-      - key: POSTGRES_DB
-        fromDatabase:
-          name: comments-db
-          property: database
-      - key: POSTGRES_USER
-        fromDatabase:
-          name: comments-db
-          property: user
-      - key: POSTGRES_PASSWORD
-        fromDatabase:
-          name: comments-db
-          property: password
-      - key: POSTGRES_DB_PORT
-        fromDatabase:
-          name: comments-db
-          property: port
-      - key: REDIS_URL
-        fromService:
-          name: comments-redis
-          type: redis
-          property: connectionString
-
 databases:
   - name: comments-db
     plan: free
