@@ -1,0 +1,75 @@
+<form method="post" enctype="multipart/form-data" id="form">
+  {% csrf_token %}
+
+  <input type="hidden" name="parent_id" value="{{ reply_to }}">
+
+  {% if reply_to %}
+    <p class="reply-notice">
+      ↩ Вы отвечаете на комментарий {{ reply_comment.user_name }}
+      — <a href="?sort={{ sort_by }}&page={{ page_number }}">отменить</a>
+    </p>
+  {% endif %}
+
+  {% if form.non_field_errors %}
+    <div class="error-box">{{ form.non_field_errors }}</div>
+  {% endif %}
+
+  <p>
+    <label>Имя* <small>(только латиница и цифры)</small></label>
+    {{ form.user_name }}
+    {% if form.user_name.errors %}
+      <span class="field-error">{{ form.user_name.errors|join:", " }}</span>
+    {% endif %}
+  </p>
+
+  <p>
+    <label>Email*</label>
+    {{ form.email }}
+    {% if form.email.errors %}
+      <span class="field-error">{{ form.email.errors|join:", " }}</span>
+    {% endif %}
+  </p>
+
+  <p>
+    <label>Домашняя страница <small>(необязательно)</small></label>
+    {{ form.home_page }}
+    {% if form.home_page.errors %}
+      <span class="field-error">{{ form.home_page.errors|join:", " }}</span>
+    {% endif %}
+  </p>
+
+  <p>
+    <label>
+      Текст*
+      <small>разрешены теги: &lt;a&gt; &lt;code&gt; &lt;i&gt; &lt;strong&gt;</small>
+    </label>
+    {{ form.text }}
+    {% if form.text.errors %}
+      <span class="field-error">{{ form.text.errors|join:", " }}</span>
+    {% endif %}
+  </p>
+
+  <p>
+    <label>
+      Файл
+      <small>JPG/GIF/PNG — будет уменьшен до 320×240; TXT до 100 KB</small>
+    </label>
+    {{ form.mediafile }}
+    {% if form.mediafile.errors %}
+      <span class="field-error">{{ form.mediafile.errors|join:", " }}</span>
+    {% endif %}
+  </p>
+
+  <p>
+    <label>Капча*</label>
+    {{ form.captcha }}
+    {% if form.captcha.errors %}
+      <span class="field-error">{{ form.captcha.errors|join:", " }}</span>
+    {% endif %}
+  </p>
+
+  <p>
+    <button type="submit" name="action" value="preview">👁 Предпросмотр</button>
+    <button type="submit" name="action" value="submit" class="btn-submit">✉ Отправить</button>
+  </p>
+</form>

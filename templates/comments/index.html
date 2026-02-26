@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Комментарии</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div id="page">
+
+  <h1>Комментарии</h1>
+
+  <details {% if reply_to or form.errors or preview_text %}open{% endif %}>
+    <summary>✏️ Написать комментарий</summary>
+
+    <div class="form-box">
+      {% include "comments/comment_form.html" %}
+    </div>
+
+    {% if preview_text %}
+      <div class="preview-box">
+        <strong>Предпросмотр:</strong>
+        <div>{{ preview_text|safe }}</div>
+      </div>
+    {% endif %}
+  </details>
+
+  <hr>
+
+
+  <div class="sort-bar">
+    <span class="sort-bar__label">Сортировка:</span>
+
+    <a href="?sort={% if sort_by == '-created_at' %}created_at{% else %}-created_at{% endif %}&page=1"
+       class="sort-bar__link {% if sort_by == 'created_at' or sort_by == '-created_at' %}sort-bar__link--active{% endif %}">
+      Дата
+      {% if sort_by == '-created_at' %}▼{% elif sort_by == 'created_at' %}▲{% endif %}
+    </a>
+
+    <a href="?sort={% if sort_by == '-user_name' %}user_name{% else %}-user_name{% endif %}&page=1"
+       class="sort-bar__link {% if sort_by == 'user_name' or sort_by == '-user_name' %}sort-bar__link--active{% endif %}">
+      Имя
+      {% if sort_by == '-user_name' %}▼{% elif sort_by == 'user_name' %}▲{% endif %}
+    </a>
+
+    <a href="?sort={% if sort_by == '-email' %}email{% else %}-email{% endif %}&page=1"
+       class="sort-bar__link {% if sort_by == 'email' or sort_by == '-email' %}sort-bar__link--active{% endif %}">
+      Email
+      {% if sort_by == '-email' %}▼{% elif sort_by == 'email' %}▲{% endif %}
+    </a>
+  </div>
+
+
+  <div class="comments-list">
+
+    {% for comment in comments_page %}
+      <div class="comment comment--root">
+
+        <div class="comment__header">
+          {% if comment.home_page %}
+            <a href="{{ comment.home_page }}" target="_blank" rel="nofollow"
+               class="comment__name">
+              {{ comment.user_name }}
+            </a>
+          {% else %}
+            <span class="comment__name">{{ comment.user_name }}</span>
+          {% endif %}
+
+          <span class="comment__email">&lt;{{ comment.email }}&gt;</span>
+          <span class="comment__date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+        </div>
+
+        <div class="comment__body">
+          {{ comment.text|safe }}
+        </div>
+
+        {% if comment.mediafile %}
+          <div class="comment__file">
+            <a href="{{ comment.mediafile.url }}" target="_blank">📎 файл</a>
+          </div>
+        {% endif %}
+
+        <a href="?reply_to={{ comment.id }}&sort={{ sort_by }}&page={{ comments_page.number }}#form"
+           class="comment__reply-link">
+          ↩ ответить
+        </a>
+
+        {% with replies=comment.replies.all depth=1 %}
+          {% include "comments/comment_tree.html" %}
+        {% endwith %}
+
+      </div>
+    {% empty %}
+      <p class="empty-msg">Комментариев пока нет. Будь первым!</p>
+    {% endfor %}
+
+  </div>
+
+  <div id="pagination">
+    {% if comments_page.has_previous %}
+      <a href="?page={{ comments_page.previous_page_number }}&sort={{ sort_by }}">← назад</a>
+    {% endif %}
+
+    <span>{{ comments_page.number }} / {{ comments_page.paginator.num_pages }}</span>
+
+    {% if comments_page.has_next %}
+      <a href="?page={{ comments_page.next_page_number }}&sort={{ sort_by }}">вперёд →</a>
+    {% endif %}
+  </div>
+
+</div>
+</body>
+</html>
