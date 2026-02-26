@@ -7,7 +7,6 @@ from django.views.decorators.http import require_http_methods
 
 from .models import Comment
 from .forms import CommentForm
-from .jwt_utils import create_token
 from .sanitizer import sanitize_text
 
 ALLOWED_SORTS = [
@@ -31,7 +30,9 @@ def index(request):
     page_number = request.GET.get("page", 1)
 
     reply_to = request.GET.get("reply_to", "")
-
+    reply_comment = None
+    if reply_to:
+        reply_comment = get_object_or_404(Comment, id=reply_to)
     preview_text = None
 
     if request.method == "POST":
@@ -52,15 +53,11 @@ def index(request):
                 comment.save()
                 cache.clear()
 
-                token = create_token(comment.user_name, comment.email)
-                request.session["jwt_token"] = token
-
                 return redirect(f"/?sort={sort_by}&page={page_number}")
     else:
-        initial = {}
+        form = CommentForm()
         if reply_to:
-            initial["parent_id"] = reply_to
-        form = CommentForm(initial=initial)
+            form.initial["parent_id"] = reply_to
 
     cache_key = f"comments_{sort_by}_page_{page_number}"
     comments_page = cache.get(cache_key)
@@ -79,6 +76,7 @@ def index(request):
             "form": form,
             "sort_by": sort_by,
             "reply_to": reply_to,
+            "reply_comment": reply_comment,
             "preview_text": preview_text,
             "page_number": page_number,
         },
