@@ -14,13 +14,14 @@ def handle_attachment_after_save(sender, instance, created, **kwargs):
     If picture in comments run Celery.
     """
 
+    if not created:
+        return
+
     if not instance.mediafile:
         return
 
-    if created and instance.mediafile:
-        file_path = instance.mediafile.path
+    file_path = instance.mediafile.path
+    _, ext = os.path.splitext(file_path)
 
-        _, ext = os.path.splitext(file_path)
-
-        if ext.lower() in IMAGE_EXTENSIONS:
-            resize_image.delay(file_path)
+    if ext.lower() in IMAGE_EXTENSIONS:
+        resize_image.delay(file_path)
