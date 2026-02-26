@@ -1,0 +1,39 @@
+{% for reply in replies %}
+  <div class="comment comment--reply" style="margin-left: {{ depth }}0px;">
+
+    <div class="comment__header">
+      {% if reply.home_page %}
+        <a href="{{ reply.home_page }}" target="_blank" rel="nofollow" class="comment__name">
+          {{ reply.user_name }}
+        </a>
+      {% else %}
+        <span class="comment__name">{{ reply.user_name }}</span>
+      {% endif %}
+
+      <span class="comment__email">&lt;{{ reply.email }}&gt;</span>
+      <span class="comment__date">{{ reply.created_at|date:"d.m.Y H:i" }}</span>
+    </div>
+
+    <div class="comment__body">
+      {{ reply.text|safe }}
+    </div>
+
+    {% if reply.mediafile %}
+      <div class="comment__file">
+        <a href="{{ reply.mediafile.url }}" target="_blank">📎 файл</a>
+      </div>
+    {% endif %}
+
+    <a href="?reply_to={{ reply.id }}&sort={{ sort_by }}&page={{ page_number }}#form"
+       class="comment__reply-link">
+      ↩ ответить
+    </a>
+
+    {% with next_replies=reply.replies.all next_depth=depth|add:1 %}
+      {% if next_replies %}
+        {% include "comments/comment_tree.html" with replies=next_replies depth=next_depth %}
+      {% endif %}
+    {% endwith %}
+
+  </div>
+{% endfor %}
