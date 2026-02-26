@@ -12,7 +12,7 @@ class CommentForm(forms.ModelForm):
 
     class Meta:
         model = Comment
-        fields = ["user_name", "email", "home_page", "text", "attachment"]
+        fields = ["user_name", "email", "home_page", "text", "mediafile"]
         widgets = {
             "text": forms.Textarea(attrs={"rows": 4}),
         }
@@ -21,8 +21,8 @@ class CommentForm(forms.ModelForm):
         raw = self.cleaned_data.get("text", "")
         return sanitize_text(raw)
 
-    def clean_attachment(self):
-        file = self.cleaned_data.get("attachment")
+    def clean_mediafile(self):
+        file = self.cleaned_data.get("mediafile")
         if not file:
             return file
 

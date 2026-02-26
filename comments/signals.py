@@ -13,8 +13,12 @@ def handle_attachment_after_save(sender, instance, created, **kwargs):
     """
     If picture in comments run Celery.
     """
-    if created and instance.attachment:
-        file_path = instance.attachment.path
+
+    if not instance.mediafile:
+        return
+
+    if created and instance.mediafile:
+        file_path = instance.mediafile.path
 
         _, ext = os.path.splitext(file_path)
 
